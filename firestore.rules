@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: rageRegistrations
+    // Fields:
+    //   - name: string (required, 2-100 chars)
+    //   - email: string (required, email format)
+    //   - phone: string (required, 10-15 chars)
+    //   - usn: string (required, 5-20 chars)
+    //   - year: string (required, enum: 1st, 2nd, 3rd, 4th)
+    //   - branch: string (required)
+    //   - otherBranch: string (optional)
+    //   - referralCode: string (optional)
+    //   - message: string (optional, max 500 chars)
+    //   - createdAt: timestamp (required)
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "manikumarkundena@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    function isValidRegistration(data) {
+      let fields = ['name', 'email', 'phone', 'usn', 'year', 'branch', 'otherBranch', 'referralCode', 'message', 'createdAt'];
+      return data.keys().hasAll(['name', 'email', 'phone', 'usn', 'year', 'branch', 'createdAt']) &&
+             data.keys().hasOnly(fields) &&
+             data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+             data.email is string && data.email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$") &&
+             data.phone is string && data.phone.size() >= 10 && data.phone.size() <= 15 &&
+             data.usn is string && data.usn.size() >= 5 && data.usn.size() <= 20 &&
+             data.year in ['1st', '2nd', '3rd', '4th'] &&
+             data.branch is string &&
+             (!('otherBranch' in data) || (data.otherBranch is string && data.otherBranch.size() <= 100)) &&
+             (!('referralCode' in data) || (data.referralCode is string && data.referralCode.size() <= 50)) &&
+             (!('message' in data) || (data.message is string && data.message.size() <= 500)) &&
+             data.createdAt is timestamp;
+    }
+
+    match /rageRegistrations/{registrationId} {
+      // Anyone can create a registration, but it must be valid
+      allow create: if isValidRegistration(request.resource.data);
+      
+      // Only admin can read or delete registrations
+      allow read, delete: if isAdmin();
+      
+      // No updates allowed for registrations once submitted
+      allow update: if false;
+    }
+  }
+}

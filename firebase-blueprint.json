@@ -1,0 +1,28 @@
+{
+  "entities": {
+    "Registration": {
+      "title": "Registration",
+      "description": "Event registration for RAGE 2K26",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of the registrant" },
+        "email": { "type": "string", "format": "email", "description": "Email address" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "usn": { "type": "string", "description": "University Seat Number" },
+        "year": { "type": "string", "enum": ["1st", "2nd", "3rd", "4th"], "description": "Academic year" },
+        "branch": { "type": "string", "description": "Academic branch" },
+        "otherBranch": { "type": "string", "description": "Other branch if selected" },
+        "referralCode": { "type": "string", "description": "Optional referral code" },
+        "message": { "type": "string", "description": "Optional message to the team" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Submission timestamp" }
+      },
+      "required": ["name", "email", "phone", "usn", "year", "branch", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/rageRegistrations/{registrationId}": {
+      "schema": "Registration",
+      "description": "Collection of event registrations"
+    }
+  }
+}

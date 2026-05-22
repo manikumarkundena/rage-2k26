@@ -9,7 +9,10 @@ import { Loader2, CheckCircle2, Users, Mail, Phone, GraduationCap, Building2, Se
 import confetti from 'canvas-confetti';
 
 const registrationSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
+  name: z
+  .string()
+  .min(2, 'Name must be at least 2 characters')
+  .regex(/^[A-Za-z.\s]+$/, 'Only alphabets are allowed'),
   email: z.string().email('Invalid email address'),
   phone: z.string().min(10, 'Phone must be at least 10 digits').max(15, 'Too long'),
   usn: z.string().min(5, 'Invalid USN'),

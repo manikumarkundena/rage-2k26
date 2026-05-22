@@ -14,7 +14,9 @@ const registrationSchema = z.object({
   .min(2, 'Name must be at least 2 characters')
   .regex(/^[A-Za-z.\s]+$/, 'Only alphabets are allowed'),
   email: z.string().email('Invalid email address'),
-  phone: z.string().min(10, 'Phone must be at least 10 digits').max(15, 'Too long'),
+  phone: z
+  .string()
+  .regex(/^[0-9]{10}$/, 'Enter a valid 10-digit phone number'),
   usn: z.string().min(5, 'Invalid USN'),
   year: z.enum(['1st', '2nd', '3rd', '4th']),
   branch: z.string().min(1, 'Please select a branch'),
@@ -147,10 +149,16 @@ export default function RegistrationForm() {
                 <Phone size={14} className="text-neon-cyan" /> Phone Number
               </label>
               <input 
-                {...register('phone')}
-                className="input-field"
-                placeholder="Enter phone number"
-              />
+  {...register('phone')}
+  type="tel"
+  inputMode="numeric"
+  maxLength={10}
+  className="input-field"
+  placeholder="Enter 10-digit phone number"
+  onInput={(e) => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+  }}
+/>
               {errors.phone && <p className="text-red-500 text-xs mt-1 font-bold">{errors.phone.message}</p>}
             </div>
 
